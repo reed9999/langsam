@@ -8,6 +8,8 @@ versus one or more specific opponents) and a game in the sense that Yucata added
 something is my favorite game, etc.
 """
 import os
+import re
+
 import requests
 
 class GameDownloader(object):
@@ -40,6 +42,19 @@ class GameDownloader(object):
         url = f"https://yucata.de/en/Game/{self._game_type}/{game_id}"
         response = requests.get(url)
         return response.text
+        
+    def _request_top_players_anonymously(self):
+        """Adapted from legacy repo in site_yucata/classify_games.py ."""
+        url = 'https://yucata.de/de/GameInfo/' + self._game_type
+        try:
+            response = requests.get(url)
+        except TimeoutError as e:
+            raise YucataOSError(wrapped_error=e, game=self._game_type)
+        lines = response.text.split(sep='background-color:white')
+        patt = 'User/([a-zA-Z0-9 ]*)"'
+        return [re.search(patt, l).group(1) for l in lines if re.search(patt, l)]
+
 
 if __name__ == "__main__":
-    GameDownloader().save_all_games()
+    # GameDownloader().save_all_games()
+    print(GameDownloader()._request_top_players_anonymously())
