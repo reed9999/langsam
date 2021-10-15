@@ -44,7 +44,8 @@ class GameDownloader(object):
         return response.text
         
     def _request_top_players_anonymously(self):
-        """Adapted from legacy repo in site_yucata/classify_games.py ."""
+        """Adapted from legacy repo in site_yucata/classify_games.py . However, 
+        this can only get the top 10 for each game and hence may not be that valuable."""
         url = 'https://yucata.de/de/GameInfo/' + self._game_type
         try:
             response = requests.get(url)
@@ -54,7 +55,20 @@ class GameDownloader(object):
         patt = 'User/([a-zA-Z0-9 ]*)"'
         return [re.search(patt, l).group(1) for l in lines if re.search(patt, l)]
 
+    def _attempt_by_brute_force(self):
+        """Just go through each game number in a certain range and report if it's our desired game type."""
+        for i in range(12_315_800, 12315900):  # 12315875 is known to be Petersburg
+            url = f"https://www.yucata.de/de/Game/{self._game_type}/{i}"
+            print(url) # response = requests.get(url)
+            # print(f"{i}: {response.status_code}")
+            # with open(f"temp-{i}.html", 'w') as thefile:
+            #     thefile.write(response.text)
 
+            
+
+            
+        
 if __name__ == "__main__":
     # GameDownloader().save_all_games()
-    print(GameDownloader()._request_top_players_anonymously())
+    # print(GameDownloader()._request_top_players_anonymously())
+    print(GameDownloader()._attempt_by_brute_force())
