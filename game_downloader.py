@@ -56,7 +56,9 @@ class GameDownloader(object):
         return [re.search(patt, l).group(1) for l in lines if re.search(patt, l)]
 
     def _attempt_by_brute_force(self):
-        """Just go through each game number in a certain range and report if it's our desired game type."""
+        """The concept: Just go through each game number in a certain range and report if it's our desired game type.
+        
+        But it doesn't actually work if you're not logged in so never mind."""
         for i in range(12_315_800, 12315900):  # 12315875 is known to be Petersburg
             url = f"https://www.yucata.de/de/Game/{self._game_type}/{i}"
             print(url) # response = requests.get(url)

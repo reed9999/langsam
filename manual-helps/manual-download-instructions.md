@@ -1,7 +1,11 @@
 # Instructions for manual download support
+Some of the Yucata things I'd like to automate, with an eye  toward downloading all games of a given game 
+type, are not feasible when logged out. Rather than try to use something like Selenium, I'd like to at least
+try to make some of these work by manual downloads, followed by automatic processing of the downloaded files.
 
-Some parts of interaction Yucata are hard to automate. We'd like to iterate over all players of a certain game
-type, but this is non-trivial to do because the list requires a login.
+But even then, there are subtleties. Because the lists somewhere like https://www.yucata.de/en/Ranking/Game/Petersburg
+(if logged in) are generated dynamically by JavaScript, they won't save with a standard Ctrl+S. I need a good way to 
+save off those lists. 
 
 Apparently you can't even see any game histories at all now. So clearly we need a new solution. How about running JS in the 
 browser while logged in and accessing the relevant info?
@@ -10,11 +14,21 @@ browser while logged in and accessing the relevant info?
 
 Petersburg is an example here.
 1. Access https://www.yucata.de/en/Ranking/Game/Petersburg in browser while logged in.
-2. Press Ctrl + Shift + C or whatever brings up the JavaScript tool 
-``` start = document.getElementById('rankingTable');
-console.log(start.innerText)
-```
+2. Set to 100 games.
+2. Press Ctrl + Shift + C or whatever brings up the JavaScript tool. Paste in the 
+JS from manual-helps/yucata-top-players.js
 
+
+Note that the list is in table#rankingTable
+
+
+
+# Notes on manual downloads
+
+
+## Ranking table
+
+1. Go to https://www.yucata.de/en/Ranking/Game/Petersburg (while logged in)
 
 
 ```
