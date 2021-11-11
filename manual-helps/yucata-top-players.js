@@ -1,24 +1,4 @@
-function sleep (time) {
-  return new Promise((resolve) => setTimeout(resolve, time));
-}
 
-// https://stackoverflow.com/questions/21012580
-var textFile = null,
-makeTextFile = function (text) {
-    var data = new Blob([text], {type: 'text/plain'});
-
-    // If we are replacing a previously generated file we need to
-    // manually revoke the object URL to avoid memory leaks.
-    if (textFile !== null) {
-      window.URL.revokeObjectURL(textFile);
-    }
-
-    textFile = window.URL.createObjectURL(data);
-
-    // returns a URL you can use as a href
-    return textFile;
-  };
-  
   
 
 function getUserName(html) {
@@ -84,4 +64,27 @@ function followAllUsers(listOfUsers) {
 
 theList = extractRankingList()
 console.log(theList)
-followAllUsers(theList)
+// Not fully impl but if you want to try getting per-user data:
+
+// function sleep (time) {
+//     return new Promise((resolve) => setTimeout(resolve, time));
+//   }
+  
+//   // https://stackoverflow.com/questions/21012580
+//   var textFile = null,
+//   makeTextFile = function (text) {
+//       var data = new Blob([text], {type: 'text/plain'});
+  
+//       // If we are replacing a previously generated file we need to
+//       // manually revoke the object URL to avoid memory leaks.
+//       if (textFile !== null) {
+//         window.URL.revokeObjectURL(textFile);
+//       }
+  
+//       textFile = window.URL.createObjectURL(data);
+  
+//       // returns a URL you can use as a href
+//       return textFile;
+//     };
+    
+// followAllUsers(theList)
