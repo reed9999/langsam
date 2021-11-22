@@ -16,9 +16,13 @@ browser while logged in and accessing the relevant info?
 Petersburg is an example here. This seems to be a simple way to find it from any Yucata.de page:
 
 ```javascript
+var theArray = []
 processRes = function(res) {
+  // return res.map(function (x) {return x[0]});
+  theArray = res;
   return res;
 }
+
 
 fetch('https://www.yucata.de/Services/YucataService.svc/GetTrueSkillRatingsByGameType', {
   method: 'POST',
@@ -30,15 +34,147 @@ fetch('https://www.yucata.de/Services/YucataService.svc/GetTrueSkillRatingsByGam
   }
 })
 .then(res => res.json())
-.then(res => processRes(res))
+// .then(res => processRes(res))
+.then(processRes)
 .then(console.log)
+
+ranksAndNames = theArray.map(
+  function(item) {
+    return item[2];
+  }
+)
 ```
 
 See https://stackoverflow.com/questions/14248296/making-http-requests-using-chrome-developer-tools
 
 Note: `'359',	// St Pete`
 
+#### Generalizing it
+
+I found the name of GetTrueSkillRatingsByGameType in bundles-mpscripts. The lines that look something like:
+`BaseServiceCall("GetTrueSkillRatingsByGameType", ...)` are the ones to track carefully.
+
+However so far it's proved fruitless for all the rest. Instead, note the console.log on line 3739 of mpscripts.
+
+
+Old fruitless approach.
+
+```javascript
+fetch('https://www.yucata.de/Services/YucataService.svc/GetAllPlayedGamesByUserId', {
+  method: 'POST',
+  body: JSON.stringify({
+    playerId: "404792"}),
+  headers: {
+    'Content-type': 'application/json; charset=UTF-8'
+  }
+})
+
+fetch('https://www.yucata.de/Services/YucataService.svc/GetAllPlayedGamesByUserId', {
+  method: 'POST',
+  body: JSON.stringify({
+    playerId: '404792' }),
+  headers: {
+    'Content-type': 'application/json; charset=UTF-8'
+  }
+})
+.then(res => res.json())
+// .then(res => processRes(res))
+//.then(processRes)
+.then(console.log)
+
+
+bodyJson = JSON.stringify({
+    gameTypeId: '142',
+    page: '1' })
+fetch('https://www.yucata.de/Services/YucataService.svc/GetTrueSkillRatingsByGameType', {
+  method: 'POST',
+  body: bodyJson,
+  headers: {
+    'Content-type': 'application/json; charset=UTF-8'
+  }
+})
+.then(res => res.json())
+.then(console.log)
+
+
+bodyJson = JSON.stringify({usedID: '404792' })
+
+fetch('https://www.yucata.de/Services/YucataService.svc/GetAllPlayedGames', {
+  method: 'POST',
+  body: bodyJson,
+  headers: {
+    'Content-type': 'application/json; charset=UTF-8'
+  }
+})
+// .then(res => res.json())
+.then(console.log)
+```
+
+
+```javascript
+function ServiceGetAllPlayedGames(n, t, i) {
+    BaseServiceCall("GetAllPlayedGames", '{"userID":"' + n + '"}', t, i)
+}
+function ServiceGetGamesByOpponentByGameType(n, t, i, r) {
+    BaseServiceCall("GetGamesByOpponentByGameType", '{"playerID":"' + n + '","opponentID":"' + t + '"}', i, r)
+}
+function ServiceGetGamesByGameTypeByOpponent(n, t, i, r) {
+    BaseServiceCall("GetGamesByGameTypeByOpponent", '{"playerID":"' + n + '","gameType":"' + t + '"}', i, r)
+}
+function ServiceGetGamesByGameTypeAllGames(n, t, i, r) {
+    BaseServiceCall("GetGamesByGameTypeAllGames", '{"playerID":"' + n + '","gameType":"' + t + '"}', i, r)
+}
+function ServiceGetGamesByOpponentAllGames(n, t, i, r) {
+    BaseServiceCall("GetGamesByOpponentAllGames", '{"playerID":"' + n + '","opponentID":"' + t + '"}', i, r)
+}
+function ServiceGetGamesByGameTypeByOpponentAllGames(n, t, i, r, u) {
+    BaseServiceCall("GetGamesByGameTypeByOpponentAllGames", '{"playerID":"' + n + '","opponentID":"' + t + '","gameType":"' + i + '"}', r, u)
+}
+```
+
+//'142',	// Russian RR
+
+
+### Some code from each player's info page
+
+
+    $(function () {
+        UpdatePlayerRankingList(66469, window.location.hash);
+        ServiceGetPlayedOpponents(66469, setOpponentFilter);
+        ServiceGetPlayedGameTypes(66469, setGameTypesFilter);
+
+        window.onhashchange = function () {
+            UpdatePlayerRankingList(66469, window.location.hash);
+		};
+
 ### Legacy approach
+
+#### Newer stuff where we can't get anything better.
+
+1. Go to each player's page. e.g.
+
+2.
+```javascript
+el = document.getElementById("divPlayerRankingListTable")
+el.child[0].children  // rows of the table
+```
+
+Handy to manipulate the table (adapted from JS on the Ranking/<username>) page)
+
+```javascript
+var dataTableAll = $('#divPlayerRankingListTable').DataTable();
+dataTableAll.page.len(-1).draw
+```
+
+```javascript
+function getTheGames(){
+  window.location.href = '/en/Ranking/philip9999#game_142';
+  var dataTableAll = $('#divPlayerRankingListTable').DataTable();
+  dataTableAll.page.len(-1).draw
+}
+getTheGames()
+```
+#### Legacy legacy
 1. Access https://www.yucata.de/en/Ranking/Game/SaintPetersburg2 * in browser while logged in.
 2. Set to 100 games.
 2. Press Ctrl + Shift + C or whatever brings up the JavaScript tool. Paste in the 
