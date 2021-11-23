@@ -51,10 +51,100 @@ Note: `'359',	// St Pete`
 
 #### Generalizing it
 
+Eureka! Here is the call to get what I'm looking for: 
+https://www.yucata.de/Services/YucataService.svc/data.jqdt?dataSource=RankingDetailsUser&UserID=404792&GameType=142&Length=-1
+
+The last one is to get *all* the rows in the JSON (i.e., len(-1)). Thank you, line 3723 of mpscripts.
+
+```javascript
+serviceUrl = 'https://www.yucata.de/Services/YucataService.svc/data.jqdt?dataSource=RankingDetailsUser&UserID=404792&GameType=142&Length=-1'
+fetch(serviceUrl, {
+  method: 'GET',
+  headers: {
+    'Content-type': 'application/json; charset=UTF-8'
+  }
+}).then(res => res.json())
+.then(console.log)
+```
+
+I don't know how to do actual date ranges: appending `FromDate=2020-01-01&ToDate=2021-11-30`:
+
+```javascript
+fetch('https://www.yucata.de/Services/YucataService.svc/data.jqdt?dataSource=RankingDetailsUser&UserID=404792&GameType=142', {
+  method: 'GET',
+  headers: {
+    'Content-type': 'application/json; charset=UTF-8'
+  }
+}).then(res => res.json())
+.then(console.log)
+```
+#### All together now
+
+```javascript
+
+function fetchGamesForPlayer(player) {
+  fetch(`https://www.yucata.de/Services/YucataService.svc/data.jqdt?dataSource=RankingDetailsUser&UserID=${player}&GameType=142&Length=-1`, {
+  method: 'GET',
+  headers: {
+    'Content-type': 'application/json; charset=UTF-8'
+  }
+  }).then(res => res.json())
+  .then(console.log)
+}
+
+// function fetchGamesForPlayer(player) {
+//   console.log(`soon I'll fetch games for ${player}`)
+// }
+
+var theArray = []
+processPlayerList = function(res) {
+  // return res.map(function (x) {return x[0]});
+  theArray = res.d.slice(0, 20).map(
+  function(item) {
+    player = item[6]
+    fetchGamesForPlayer(player)
+    return player
+  })
+  return theArray
+}
+
+
+fetch('https://www.yucata.de/Services/YucataService.svc/GetTrueSkillRatingsByGameType', {
+  method: 'POST',
+  body: JSON.stringify({
+    gameTypeId: '142',	// Russian RR
+    page: '1'  }),
+  headers: {
+    'Content-type': 'application/json; charset=UTF-8'
+  }
+})
+.then(res => res.json())
+// .then(res => processRes(res))
+.then(processPlayerList)
+.then(console.log)
+```
+
+
+
+
+```
+// Don't paste this in - it only fouls it up - but try to fix it.
+userIds = theArray.d.map(
+  function(item) {
+    return item[6]
+  }
+)
+```
+
+
+
+#### Generalizing it - the old fruitless approach
+
 I found the name of GetTrueSkillRatingsByGameType in bundles-mpscripts. The lines that look something like:
 `BaseServiceCall("GetTrueSkillRatingsByGameType", ...)` are the ones to track carefully.
 
 However so far it's proved fruitless for all the rest. Instead, note the console.log on line 3739 of mpscripts.
+
 
 
 Old fruitless approach.
@@ -167,12 +257,26 @@ dataTableAll.page.len(-1).draw
 ```
 
 ```javascript
-function getTheGames(){
-  window.location.href = '/en/Ranking/philip9999#game_142';
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function getTheGames(player){
+  window.location.href = `/en/Ranking/${player}#game_142`;
   var dataTableAll = $('#divPlayerRankingListTable').DataTable();
   dataTableAll.page.len(-1).draw
 }
-getTheGames()
+
+let somePlayers = ['Lilou', 'philip9999']  // Lilou = top player in ranking right now
+for (player of somePlayers) {
+  getTheGames(player)
+  console.log(`Navigated to ${player}'s page and viewed all games of this type.`)
+  sleep(500)
+  console.log("Finished sleeping.")
+
+}
+
 ```
 #### Legacy legacy
 1. Access https://www.yucata.de/en/Ranking/Game/SaintPetersburg2 * in browser while logged in.
