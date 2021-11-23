@@ -78,53 +78,9 @@ fetch('https://www.yucata.de/Services/YucataService.svc/data.jqdt?dataSource=Ran
 }).then(res => res.json())
 .then(console.log)
 ```
-#### All together now
+#### Toward a fully integrated solution
 
-```javascript
-
-function fetchGamesForPlayer(player) {
-  fetch(`https://www.yucata.de/Services/YucataService.svc/data.jqdt?dataSource=RankingDetailsUser&UserID=${player}&GameType=142&Length=-1`, {
-  method: 'GET',
-  headers: {
-    'Content-type': 'application/json; charset=UTF-8'
-  }
-  }).then(res => res.json())
-  .then(console.log)
-}
-
-// function fetchGamesForPlayer(player) {
-//   console.log(`soon I'll fetch games for ${player}`)
-// }
-
-var theArray = []
-processPlayerList = function(res) {
-  // return res.map(function (x) {return x[0]});
-  theArray = res.d.slice(0, 20).map(
-  function(item) {
-    player = item[6]
-    fetchGamesForPlayer(player)
-    return player
-  })
-  return theArray
-}
-
-
-fetch('https://www.yucata.de/Services/YucataService.svc/GetTrueSkillRatingsByGameType', {
-  method: 'POST',
-  body: JSON.stringify({
-    gameTypeId: '142',	// Russian RR
-    page: '1'  }),
-  headers: {
-    'Content-type': 'application/json; charset=UTF-8'
-  }
-})
-.then(res => res.json())
-// .then(res => processRes(res))
-.then(processPlayerList)
-.then(console.log)
-```
-
-
+See new file `get-games-for-gametypes.js`
 
 
 ```
