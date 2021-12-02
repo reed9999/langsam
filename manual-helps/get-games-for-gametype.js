@@ -1,15 +1,20 @@
 // This file represents the latest canonical code to come out of my experiments documented in `manual-download-instructions.md`. 
-// It exists largely to separate out this large block of running code that I want to paste into the Console.
+// For best results, this entire block of code should typically be pasted directly into the console.
 
+let THROTTLE = 5;  // i.e. don't do too many queries until this works really well.
+
+// function GameFetcher(gameType) {
+
+// }
 
 function processGamesList(gameResp) {
-  rv = gameResp.data.map( x => x.HistoryExists ? `GOOD: ${x.GameId}` : `No:  ${x.GameId}`)
+  rv = gameResp.data.slice(0, THROTTLE).map( x => x.HistoryExists ? getGameLog(x.GameId) : `!!! UNAVAILABLE GAME ID:  ${x.GameId}`)
   // rv = gameResp.data
   return rv
 }
 
 function fetchGamesForPlayer(player) {
-  fetch(`https://www.yucata.de/Services/YucataService.svc/data.jqdt?dataSource=RankingDetailsUser&UserID=${player}&GameType=142&Length=-1`, {
+  return fetch(`https://www.yucata.de/Services/YucataService.svc/data.jqdt?dataSource=RankingDetailsUser&UserID=${player}&GameType=142&Length=-1`, {
   method: 'GET',
   headers: {
     'Content-type': 'application/json; charset=UTF-8'
@@ -17,17 +22,18 @@ function fetchGamesForPlayer(player) {
   })
   .then(res => res.json())
   .then(processGamesList)
-  .then(console.log)
 }
 
-// function fetchGamesForPlayer(player) {
-//   console.log(`soon I'll fetch games for ${player}`)
-// }
+function getGameLog(gameId){
+  window.location.href = `/en/Game/RRR2/${gameId}#page`
+  console.log($("#gameLog")[0].innerHTML)
+}
+
 
 var theArray = []
 processPlayerList = function(res) {
   // return res.map(function (x) {return x[0]});
-  theArray = res.d.slice(0, 10).map(
+  theArray = res.d.slice(0, THROTTLE).map(
   function(item) {
     player = item[6]
     fetchGamesForPlayer(player)

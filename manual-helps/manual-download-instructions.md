@@ -93,6 +93,13 @@ userIds = theArray.d.map(
 ```
 
 
+#### Once you get to a game page
+Then it's pretty simple.
+```javascript
+$("#gameLog")[0].innerText
+```
+is enough to output a textual log of the entire game.
+
 
 #### Generalizing it - the old fruitless approach
 
